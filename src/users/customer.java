@@ -1,8 +1,15 @@
 package users;
 
-public class customer extends user{
+public class Customer extends User{
     private int customerID;
     private String fullName;
+    
+   public Customer(String username, String password, String fullName) {
+        this.fullName = fullName;
+        setUsername(username);
+        setPassword(password);
+    }
+
     
 
     public int getCustomerID() {
