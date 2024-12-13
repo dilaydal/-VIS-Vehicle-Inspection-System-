@@ -29,6 +29,9 @@ public class MechanicFrame extends JFrame {
                 return;
             }
             String customerName = tableModel.getValueAt(selectedRow, 0).toString();
+            String vehicleType = tableModel.getValueAt(selectedRow, 1).toString();
+            String appointmentTime = tableModel.getValueAt(selectedRow, 2).toString();
+
             String[] options = {"Passed", "Failed"};
             int choice = JOptionPane.showOptionDialog(this, "Update inspection status for " + customerName,
                     "Inspection Status", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
@@ -36,7 +39,7 @@ public class MechanicFrame extends JFrame {
 
             if (choice != -1) {
                 String status = options[choice];
-                // Update the status in the database (requires SQL code)
+                updateInspectionStatus(customerName, vehicleType, appointmentTime, status);
                 JOptionPane.showMessageDialog(this, "Inspection status updated to: " + status, "Success", JOptionPane.INFORMATION_MESSAGE);
             }
         });
@@ -47,6 +50,7 @@ public class MechanicFrame extends JFrame {
 
         loadMechanicSchedule(mechanicName, tableModel);
     }
+
     private void loadMechanicSchedule(String mechanicName, DefaultTableModel tableModel) {
         try (Connection connection = DatabaseConnection.connect()) {
             String query = "SELECT customer_name, vehicle_type, appointment_time FROM appointments WHERE mechanic_name = ?";
@@ -62,6 +66,24 @@ public class MechanicFrame extends JFrame {
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error loading schedule: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void updateInspectionStatus(String customerName, String vehicleType, String appointmentTime, String status) {
+        try (Connection connection = DatabaseConnection.connect()) {
+            String updateQuery = "UPDATE appointments SET inspection_status = ? WHERE customer_name = ? AND vehicle_type = ? AND appointment_time = ?";
+            PreparedStatement statement = connection.prepareStatement(updateQuery);
+            statement.setString(1, status);
+            statement.setString(2, customerName);
+            statement.setString(3, vehicleType);
+            statement.setString(4, appointmentTime);
+
+            int rowsUpdated = statement.executeUpdate();
+            if (rowsUpdated == 0) {
+                JOptionPane.showMessageDialog(this, "No records were updated. Please check the database.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error updating status: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
