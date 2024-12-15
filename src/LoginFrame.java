@@ -1,4 +1,6 @@
 import javax.swing.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,8 +38,34 @@ public class LoginFrame extends JFrame {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
 
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             try (Connection connection = DatabaseConnection.connect()) {
                 //need to be filled according to SQL code/queries
+                String query = "SELECT password FROM users WHERE username = ?";
+                try (PreparedStatement statement = connection.prepareStatement(query)) {
+                    statement.setString(1, username);
+
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        if (resultSet.next()) {
+                            String storedHash = resultSet.getString("password");
+                            if (validatePassword(password, storedHash)) {
+                                JOptionPane.showMessageDialog(this, "Login successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                                dispose();
+
+                                //need to be filled to open the vis main window
+
+                            } else {
+                                JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -47,5 +75,24 @@ public class LoginFrame extends JFrame {
             new RegisterFrame().setVisible(true);
             dispose();
         });
+    }
+
+    private boolean validatePassword(String password, String storedHash) {
+        String hashedPassword = hashPassword(password);
+        return hashedPassword.equals(storedHash);
+    }
+
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = digest.digest(password.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashedBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
     }
 }

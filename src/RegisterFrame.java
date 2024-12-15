@@ -1,6 +1,9 @@
 import javax.swing.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class RegisterFrame extends JFrame {
     public RegisterFrame() {
@@ -39,11 +42,59 @@ public class RegisterFrame extends JFrame {
             String password = new String(passwordField.getPassword());
             String fullName = fullNameField.getText();
 
+
+            if (username.isEmpty() || password.isEmpty() || fullName.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            String hashedPassword = hashPassword(password);
+
             try (Connection connection = DatabaseConnection.connect()) {
                 //need to be filled according to SQL code/queries
+                //the username should be unique
+                String checkQuery = "SELECT COUNT(*) FROM users WHERE username = ?";
+                try (PreparedStatement checkStmt = connection.prepareStatement(checkQuery)) {
+                    checkStmt.setString(1, username);
+
+                    try (ResultSet resultSet = checkStmt.executeQuery()) {
+                        if (resultSet.next() && resultSet.getInt(1) > 0) {
+                            JOptionPane.showMessageDialog(this, "Username already exists. Please choose another username.", "Error", JOptionPane.WARNING_MESSAGE);
+                            return;
+                        }
+                    }
+                }
+                String insertQuery = "INSERT INTO users (username, password, full_name) VALUES (?, ?, ?)";
+                try (PreparedStatement insertStmt = connection.prepareStatement(insertQuery)) {
+                    insertStmt.setString(1, username);
+                    insertStmt.setString(2, hashedPassword);
+                    insertStmt.setString(3, fullName);
+
+                    int rowsAffected = insertStmt.executeUpdate();
+                    if (rowsAffected > 0) {
+                        JOptionPane.showMessageDialog(this, "Registration successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Registration failed. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
     }
+
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = digest.digest(password.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashedBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error hashing password", e);
+        }
+    }
+
 }
