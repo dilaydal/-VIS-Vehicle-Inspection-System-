@@ -57,7 +57,7 @@ public class RegisterFrame extends JFrame {
             try (Connection connection = DatabaseConnection.connect()) {
                 //need to be filled according to SQL code/queries
                 //the username should be unique
-                String checkQuery = "SELECT COUNT(*) FROM users WHERE username = ?";
+                String checkQuery = "SELECT COUNT(*) FROM Customers WHERE userName = ?";
                 try (PreparedStatement checkStmt = connection.prepareStatement(checkQuery)) {
                     checkStmt.setString(1, username);
 
@@ -68,7 +68,7 @@ public class RegisterFrame extends JFrame {
                         }
                     }
                 }
-                String insertQuery = "INSERT INTO users (username, password, full_name) VALUES (?, ?, ?)";
+                String insertQuery = "INSERT INTO Customers (userName, password, fullName) VALUES (?, ?, ?)";
                 try (PreparedStatement insertStmt = connection.prepareStatement(insertQuery)) {
                     insertStmt.setString(1, username);
                     insertStmt.setString(2, hashedPassword);

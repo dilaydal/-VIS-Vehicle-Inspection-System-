@@ -8,7 +8,8 @@ DROP TABLE IF EXISTS Managers;
 CREATE TABLE Customers (
     customerID INT AUTO_INCREMENT PRIMARY KEY,
     userName VARCHAR(100),
-    password VARCHAR(255)  
+    password VARCHAR(255),
+    fullName VARCHAR(100)
 );
 
 CREATE TABLE Mechanics (
@@ -22,3 +23,12 @@ CREATE TABLE Managers (
     userName VARCHAR(100),
     password VARCHAR(255)  
 );
+
+CREATE TABLE appointments (
+ id INT AUTO_INCREMENT PRIMARY KEY,
+customer_name VARCHAR(255) NOT NULL,
+vehicle_type VARCHAR(255) NOT NULL,
+appointment_date DATE NOT NULL,
+appointment_time TIME NOT NULL
+);
+
