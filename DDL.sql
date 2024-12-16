@@ -1,23 +1,23 @@
 CREATE DATABASE IF NOT EXISTS VIS;
 USE VIS;
 
-DROP TABLE IF EXISTS Customer;
-DROP TABLE IF EXISTS Mechanic;
-DROP TABLE IF EXISTS Menager;
+DROP TABLE IF EXISTS Customers;
+DROP TABLE IF EXISTS Mechanics;
+DROP TABLE IF EXISTS Managers;
 
-CREATE TABLE Customer (
+CREATE TABLE Customers (
     customerID INT AUTO_INCREMENT PRIMARY KEY,
     userName VARCHAR(100),
     password VARCHAR(255)  
 );
 
-CREATE TABLE Mechanic (
+CREATE TABLE Mechanics (
     mechanicID INT AUTO_INCREMENT PRIMARY KEY,
     userName VARCHAR(100),
     password VARCHAR(255)  
 );
 
-CREATE TABLE Menager (
+CREATE TABLE Managers (
     managerID INT AUTO_INCREMENT PRIMARY KEY,
     userName VARCHAR(100),
     password VARCHAR(255)  

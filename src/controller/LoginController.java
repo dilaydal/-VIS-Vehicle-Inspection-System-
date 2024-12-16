@@ -6,12 +6,16 @@ import utils.AuthResult;
 
 
 import javax.swing.*;
+import java.sql.Connection;
 
 public class LoginController {
     private AuthenticationModel authenticationModel;
+    private Connection connection; //LoginController needed a connection object to interact with the database.
 
-    public LoginController() {
+
+    public LoginController(Connection connection) {
         this.authenticationModel = new AuthenticationModel();
+        this.connection = connection;
     }
 
     public void handleLogin(String username, String password, JFrame loginFrame) {
@@ -45,12 +49,12 @@ public class LoginController {
                 new CustomerFrame(userName).setVisible(true);
                 break;
             case "mechanic":
-                // Örneğin MechanicMainFrame açılıyor
+                // Örneğin MechanicMainFrame açılxıyor
                 new MechanicFrame(userName).setVisible(true);
                 break;
             case "manager":
                 // Örneğin ManagerMainFrame açılıyor
-                new ManagerFrame(userName).setVisible(true);
+                new ManagerFrame(userName, connection).setVisible(true);
                 break;
             default:
                 JOptionPane.showMessageDialog(null, "Unknown user type.", "Error", JOptionPane.ERROR_MESSAGE);

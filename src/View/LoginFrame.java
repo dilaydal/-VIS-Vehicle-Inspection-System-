@@ -38,7 +38,8 @@ public class LoginFrame extends JFrame {
         add(loginButton);
         add(registerButton);
 
-        LoginController loginController = new LoginController();
+        Connection connection = DatabaseConnection.connect(); //added a connection object
+        LoginController loginController = new LoginController(connection);
 
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();

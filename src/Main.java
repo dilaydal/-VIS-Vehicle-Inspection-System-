@@ -1,4 +1,5 @@
 import View.MainFrame;
+import View.ManagerFrame;
 
 public class Main {
     public static void main(String[] args) {
