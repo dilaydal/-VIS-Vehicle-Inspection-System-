@@ -1,4 +1,9 @@
+package View;
+
 import javax.swing.*;
+
+import model.DatabaseConnection;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;

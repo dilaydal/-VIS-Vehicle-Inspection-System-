@@ -10,8 +10,6 @@ public class Customer extends User{
         setPassword(password);
     }
 
-    
-
     public int getCustomerID() {
         return customerID;
     }

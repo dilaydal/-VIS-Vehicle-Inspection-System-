@@ -1,3 +1,5 @@
+package View;
+
 import javax.swing.*;
 
 public class MainFrame extends JFrame {
@@ -28,7 +30,4 @@ public class MainFrame extends JFrame {
         });
     }
 
-    public static void main(String[] args) {
-        new MainFrame().setVisible(true);
-    }
 }

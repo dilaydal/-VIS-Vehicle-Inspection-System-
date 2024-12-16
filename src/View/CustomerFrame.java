@@ -1,4 +1,6 @@
+package View;
 import javax.swing.*;
+import model.DatabaseConnection;
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

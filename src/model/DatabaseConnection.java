@@ -1,3 +1,4 @@
+package model;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -12,7 +13,9 @@ public class DatabaseConnection {
             Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(URL, USERNAME, PASSWORD);
         } catch (ClassNotFoundException | SQLException e) {
+            System.out.println(PASSWORD);
             throw new RuntimeException("Database connection failed", e);
+            
         }
     }
 }

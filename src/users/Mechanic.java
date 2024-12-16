@@ -1,6 +1,6 @@
 package users;
 
-public class Mechanic extends User { // Capitalized class name
+public class Mechanic extends User { 
     private int mechanicID;
     private String fullName;
 
@@ -12,7 +12,6 @@ public class Mechanic extends User { // Capitalized class name
         this.fullName = fullName;     
     }
 
-    // Getters and Setters
     public String getFullName() {
         return fullName;
     }

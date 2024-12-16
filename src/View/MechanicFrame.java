@@ -1,5 +1,10 @@
+package View;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+
+import model.DatabaseConnection;
+
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

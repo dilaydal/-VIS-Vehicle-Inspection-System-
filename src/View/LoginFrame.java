@@ -1,4 +1,8 @@
+package View;
 import javax.swing.*;
+
+import controller.LoginController;
+import model.DatabaseConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -34,6 +38,22 @@ public class LoginFrame extends JFrame {
         add(loginButton);
         add(registerButton);
 
+        LoginController loginController = new LoginController();
+
+        loginButton.addActionListener(e -> {
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+            loginController.handleLogin(username, password, this);
+        });
+
+
+
+        // Burdaki kodu bozmamak için comment outladım kendim sadece db e bağlantıyı kontrol ettiğim bir kod yazdım alta
+        //LoginController ve Authentication kullanarak 
+
+
+
+        /*
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
@@ -70,12 +90,16 @@ public class LoginFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+        */
 
+        
         registerButton.addActionListener(e -> {
             new RegisterFrame().setVisible(true);
             dispose();
         });
+         
     }
+        
 
     private boolean validatePassword(String password, String storedHash) {
         String hashedPassword = hashPassword(password);
