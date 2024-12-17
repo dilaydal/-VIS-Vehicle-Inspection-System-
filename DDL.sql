@@ -15,7 +15,8 @@ CREATE TABLE Customers (
 CREATE TABLE Mechanics (
     mechanicID INT AUTO_INCREMENT PRIMARY KEY,
     userName VARCHAR(100),
-    password VARCHAR(255)  
+    password VARCHAR(255),
+    contactInfo VARCHAR(400)  
 );
 
 CREATE TABLE Managers (
@@ -25,10 +26,14 @@ CREATE TABLE Managers (
 );
 
 CREATE TABLE appointments (
- id INT AUTO_INCREMENT PRIMARY KEY,
-customer_name VARCHAR(255) NOT NULL,
-vehicle_type VARCHAR(255) NOT NULL,
-appointment_date DATE NOT NULL,
-appointment_time TIME NOT NULL
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    mechanicID INT, 
+    customerID INT, 
+    customer_name VARCHAR(255) NOT NULL,
+    vehicle_type VARCHAR(255) NOT NULL,
+    appointment_date DATE NOT NULL,
+    appointment_time TIME NOT NULL,
+    FOREIGN KEY (mechanicID) REFERENCES Mechanics(mechanicID),
+    FOREIGN KEY (customerID) REFERENCES Customers(customerID)
 );
 
