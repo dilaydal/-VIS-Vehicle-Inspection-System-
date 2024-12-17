@@ -1,18 +1,9 @@
 package users;
 
-public class Admin extends User{
-    private int adminID;
+public class Admin extends User {
 
-    public Admin(String username, String password){
-        setUsername(username);
-        setPassword(password);
+    public Admin(int id, String username) {
+        super(id, username);
     }
 
-    public int getAdminID() {
-        return adminID;
-    }
-
-    public void setAdminID(int adminID) {
-        this.adminID = adminID;
-    }
 }

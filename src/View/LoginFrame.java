@@ -1,13 +1,11 @@
 package View;
 import javax.swing.*;
 
-import controller.LoginController;
-import model.DatabaseConnection;
+import controller.*;
+import model.AuthenticationModel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
 
 public class LoginFrame extends JFrame {
     public LoginFrame() {
@@ -37,9 +35,7 @@ public class LoginFrame extends JFrame {
         add(passwordField);
         add(loginButton);
         add(registerButton);
-
-        Connection connection = DatabaseConnection.connect(); //added a connection object
-        LoginController loginController = new LoginController(connection);
+        LoginController loginController = new LoginController(new AuthenticationModel());
 
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();

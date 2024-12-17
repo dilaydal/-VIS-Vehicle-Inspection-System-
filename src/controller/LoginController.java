@@ -1,21 +1,22 @@
 package controller;
 
-import View.*;
 import model.AuthenticationModel;
 import utils.AuthResult;
-
+import users.User;
+import View.CustomerFrame;
+import View.MechanicFrame;
+import View.ManagerFrame;
 
 import javax.swing.*;
-import java.sql.Connection;
 
 public class LoginController {
-    private AuthenticationModel authenticationModel;
-    private Connection connection; //LoginController needed a connection object to interact with the database.
+    private AuthenticationModel authModel;
 
-
-    public LoginController(Connection connection) {
-        this.authenticationModel = new AuthenticationModel();
-        this.connection = connection;
+    public LoginController() {
+        this.authModel = new AuthenticationModel(); // Default initialization
+    }
+    public LoginController(AuthenticationModel authModel) {
+        this.authModel = authModel;
     }
 
     public void handleLogin(String username, String password, JFrame loginFrame) {
@@ -24,37 +25,28 @@ public class LoginController {
             return;
         }
 
-        AuthResult authResult = authenticationModel.authenticateUser(username, password);
-
+        AuthResult authResult = authModel.authenticateUser(username, password);
         if (authResult != null) {
-            JOptionPane.showMessageDialog(loginFrame, "Login successful! Welcome, " + authResult.getType() + ".", "Success", JOptionPane.INFORMATION_MESSAGE);
-            loginFrame.dispose(); // Close the login window
+            User currentUser = authResult.getUser();
+            JOptionPane.showMessageDialog(loginFrame, "Login successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            loginFrame.dispose();
 
-            // Açılan kullanıcı türüne göre ana pencereyi başlat
-            openMainWindow(authResult);
+            openUserFrame(authResult.getType(), currentUser);
         } else {
             JOptionPane.showMessageDialog(loginFrame, "Invalid username or password.", "Login Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void openMainWindow(AuthResult authResult) {
-        String userType = authResult.getType();
-        int userId = authResult.getUserId();
-        String userName = authResult.getUsername();
-
-        // Kullanıcı tipine göre ana pencereyi aç
+    private void openUserFrame(String userType, User user) {
         switch (userType) {
             case "customer":
-                // Örneğin CustomerMainFrame açılıyor
-                new CustomerFrame(userName).setVisible(true);
+                new CustomerFrame(user).setVisible(true);
                 break;
             case "mechanic":
-                // Örneğin MechanicMainFrame açılxıyor
-                new MechanicFrame(userName).setVisible(true);
+                new MechanicFrame(user).setVisible(true);
                 break;
             case "manager":
-                // Örneğin ManagerMainFrame açılıyor
-                new ManagerFrame(userName, connection).setVisible(true);
+                new ManagerFrame(user).setVisible(true);
                 break;
             default:
                 JOptionPane.showMessageDialog(null, "Unknown user type.", "Error", JOptionPane.ERROR_MESSAGE);

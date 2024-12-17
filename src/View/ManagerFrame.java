@@ -1,28 +1,35 @@
 package View;
 
 import model.DatabaseConnection;
+import users.User;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.awt.event.*;
+import java.sql.*;
+
 
 
 public class ManagerFrame extends JFrame {
+    private User user;
+    private Connection connection = DatabaseConnection.connect();
+    
 
-    private final Connection connection;
-
-    // Constructor
-    public ManagerFrame(String managerName, Connection connection) {
-        this.connection = connection;
-        // Frame özelliklerini ayarla
+    public ManagerFrame(User user) {
+        this.user = user;
+        String managerName = user.getUsername();
+     
         setTitle("Manager Frame " + managerName);
         setSize(400, 200);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                new MainFrame().setVisible(true);
+            }
+        });
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayout(2, 1, 10, 10));
@@ -220,16 +227,5 @@ public class ManagerFrame extends JFrame {
                 "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new ManagerFrame("Dilay", DatabaseConnection.connect());
-
-            }
-        });
-    }
-
-
-
+   
 }

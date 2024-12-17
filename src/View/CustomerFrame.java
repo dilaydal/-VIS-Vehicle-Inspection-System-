@@ -1,21 +1,21 @@
 package View;
 
 import model.DatabaseConnection;
+import users.User;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.awt.event.*;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class CustomerFrame extends JFrame {
-    private String customerUsername;
+    private User user;
 
-    public CustomerFrame(String customerUsername) {
-        this.customerUsername = customerUsername;
-
+    public CustomerFrame(User user) {
+        String customerUsername = user.getUsername();
+        this.user = user;
         setTitle("Customer Dashboard - " + customerUsername);
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -36,6 +36,13 @@ public class CustomerFrame extends JFrame {
         add(rescheduleAppointmentButton);
         add(cancelAppointmentButton);
         add(createAppointmentButton);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                new MainFrame().setVisible(true);
+            }
+        });
     }
 
     private void handleViewAppointments() {
@@ -52,6 +59,7 @@ public class CustomerFrame extends JFrame {
     }
 
     private ArrayList<String> loadCustomerAppointments() {
+        String customerUsername = user.getUsername();
         ArrayList<String> appointments = new ArrayList<>();
         try (Connection connection = DatabaseConnection.connect()) {
             String query = "SELECT id, appointment_date, appointment_time, vehicle_type FROM appointments WHERE customer_name = ?";
@@ -168,6 +176,7 @@ public class CustomerFrame extends JFrame {
             }
 
             try (Connection connection = DatabaseConnection.connect()) {
+                String customerUsername = user.getUsername();
                 String query = "INSERT INTO appointments (customer_name, vehicle_type, appointment_date, appointment_time) VALUES (?, ?, ?, ?)";
                 try (PreparedStatement statement = connection.prepareStatement(query)) {
                     statement.setString(1, customerUsername);

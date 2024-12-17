@@ -1,30 +1,9 @@
 package users;
 
-public class Mechanic extends User { 
-    private int mechanicID;
-    private String fullName;
+public class Mechanic extends User {
 
-   
-    public Mechanic(String username, String password, int mechanicID, String fullName) {
-        setUsername(username);  
-        setPassword(password); 
-        this.mechanicID = mechanicID; 
-        this.fullName = fullName;     
+    public Mechanic(int id, String username) {
+        super(id, username);
     }
 
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public int getMechanicID() {
-        return mechanicID;
-    }
-
-    public void setMechanicID(int mechanicID) {
-        this.mechanicID = mechanicID;
-    }
 }

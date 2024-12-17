@@ -2,16 +2,19 @@ package View;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-
-import model.DatabaseConnection;
-
+import model.*;
+import users.User;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.awt.event.*;
+import java.sql.*;
+
 
 public class MechanicFrame extends JFrame {
-    public MechanicFrame(String mechanicName) {
+    private User user;
+
+    public MechanicFrame(User user) {
+        String mechanicName = user.getUsername();
+        this.user = user;
         setTitle("Mechanic Dashboard - " + mechanicName);
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -54,6 +57,13 @@ public class MechanicFrame extends JFrame {
         add(updateStatusButton, BorderLayout.SOUTH);
 
         loadMechanicSchedule(mechanicName, tableModel);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                new MainFrame().setVisible(true);
+            }
+        });
     }
 
     private void loadMechanicSchedule(String mechanicName, DefaultTableModel tableModel) {

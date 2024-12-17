@@ -1,58 +1,45 @@
 package model;
 
+import users.*;
 import utils.AuthResult;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 
 public class AuthenticationModel {
     public AuthResult authenticateUser(String username, String password) {
         try (Connection connection = DatabaseConnection.connect()) {
-            int userId;
-            //3 farklı user 3 farklı tableımız var her biri için ayrı ayrı kontrol ediyor
-            //username unique olduğu için conflicte neden olmayacak
-            userId = checkUser(connection, "Customers", "customerID", username, password);
-            if (userId != -1) return new AuthResult("customer", userId, username);
+            User user;
 
-            userId = checkUser(connection, "Mechanics", "mechanicID", username, password);
-            if (userId != -1) return new AuthResult("mechanic", userId, username);
+            user = checkUser(connection, "Customers", username, password);
+            if (user != null) return new AuthResult("customer", user);
 
-            userId = checkUser(connection, "Managers", "managerID", username, password);
-            if (userId != -1) return new AuthResult("manager", userId, username);
+            user = checkUser(connection, "Mechanics", username, password);
+            if (user != null) return new AuthResult("mechanic", user);
 
-        } catch (SQLException e) {
+            user = checkUser(connection, "Managers", username, password);
+            if (user != null) return new AuthResult("manager", user);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private int checkUser(Connection conn, String tableName, String idColumnName, String username, String password) throws SQLException {
-        String hashedPassword = hashPassword(password);
-        String sql = "SELECT " + idColumnName + " FROM " + tableName + " WHERE userName = ? AND password = ?";
-        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+    private User checkUser(Connection conn, String tableName, String username, String password) throws Exception {
+        String query = "SELECT * FROM " + tableName + " WHERE userName = ? AND password = ?";
+        try (PreparedStatement statement = conn.prepareStatement(query)) {
             statement.setString(1, username);
-            statement.setString(2, hashedPassword);
+            statement.setString(2, password);
             try (ResultSet result = statement.executeQuery()) {
                 if (result.next()) {
-                    return result.getInt(idColumnName);
-                } else {
-                    return -1;
+                    if (tableName.equals("Customers")) {
+                        return new Customer(result.getInt("customerID"), result.getString("userName"));
+                    } else if (tableName.equals("Mechanics")) {
+                        return new Mechanic(result.getInt("mechanicID"), result.getString("userName"));
+                    } else if (tableName.equals("Managers")) {
+                        return new Admin(result.getInt("managerID"), result.getString("userName"));
+                    }
                 }
             }
         }
-    }
-    private String hashPassword(String password) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = digest.digest(password.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashedBytes) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error hashing password", e);
-        }
+        return null;
     }
 }

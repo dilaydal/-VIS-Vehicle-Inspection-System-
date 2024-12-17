@@ -1,14 +1,10 @@
 package View;
 
 import javax.swing.*;
-
 import model.DatabaseConnection;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.awt.event.*;
+import java.security.*;
+import java.sql.*;
 
 public class RegisterFrame extends JFrame {
     public RegisterFrame() {
@@ -88,6 +84,13 @@ public class RegisterFrame extends JFrame {
                 JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                new MainFrame().setVisible(true);
+            }
+        });
     }
 
     private String hashPassword(String password) {
@@ -103,5 +106,7 @@ public class RegisterFrame extends JFrame {
             throw new RuntimeException("Error hashing password", e);
         }
     }
+
+    
 
 }
