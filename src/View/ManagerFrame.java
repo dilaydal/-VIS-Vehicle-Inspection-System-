@@ -149,12 +149,14 @@ public class ManagerFrame extends JFrame {
 
             PreparedStatement st = connection.prepareStatement(addMechanicQuery);
 
-            // PreparedStatement prevents sql injection, safer than using regular Statement so we use it. It requires adding exception.
+            // PreparedStatement's setString prevents sql injection, safer than using regular Statement so we use it. It requires adding exception.
             st.setString(1, mechanicID);
+            //Replaces the first ? in the query with the value of mechanicID.
             st.setString(2, mechanicName);
             st.setString(3, mechanicPassword);
 
-            int numberOfRowsInserted = st.executeUpdate();
+            int numberOfRowsInserted = st.executeUpdate(); //executes sql query and returns int.
+            //System.out.println("numberOfRowsInserted: " + st.executeUpdate());
             if(numberOfRowsInserted>0){
                 JOptionPane.showMessageDialog(null, "Mechanic addition successful.", "Success", JOptionPane.INFORMATION_MESSAGE);
             }else{
@@ -168,18 +170,14 @@ public class ManagerFrame extends JFrame {
     private void removeMechanic(Connection connection) throws SQLException{
         JTextField mechanicNameField = new JTextField();
         JTextField mechanicIDField = new JTextField();
-        JTextField mechanicContactInfoField = new JTextField();
         JTextField mechanicPasswordField = new JTextField();
 
-        JPanel removeMechanicPanel = new JPanel(new GridLayout(4, 2, 5, 5));
+        JPanel removeMechanicPanel = new JPanel(new GridLayout(3, 2, 5, 5));
         removeMechanicPanel.add(new JLabel("Mechanic Name:"));
         removeMechanicPanel.add(mechanicNameField);
 
         removeMechanicPanel.add(new JLabel("Mechanic ID:"));
         removeMechanicPanel.add(mechanicIDField);
-
-        removeMechanicPanel.add(new JLabel("Mechanic Contact Info:"));
-        removeMechanicPanel.add(mechanicContactInfoField);
 
         removeMechanicPanel.add(new JLabel("Mechanic Password:"));
         removeMechanicPanel.add(mechanicPasswordField);
@@ -188,18 +186,32 @@ public class ManagerFrame extends JFrame {
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if(result == JOptionPane.OK_OPTION){
-            String mechanicName = mechanicNameField.getText();
-            String mechanicID = mechanicIDField.getText();
-            String mechanicContact = mechanicContactInfoField.getText();
-            String mechanicPassword = mechanicPasswordField.getText();
+            String mechanicName = mechanicNameField.getText().trim();
+            String mechanicID = mechanicIDField.getText().trim();
+            String mechanicPassword = mechanicPasswordField.getText().trim();
 
-
-            if(mechanicName.isEmpty() || mechanicID.isEmpty() || mechanicContact.isEmpty() || mechanicPassword.isEmpty()){
+            if(mechanicName.isEmpty() || mechanicID.isEmpty() || mechanicPassword.isEmpty()){
                 JOptionPane.showMessageDialog(null, "Please fill all fields.", "Error" , JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        }
 
+            String removeMechanicQuery = "DELETE FROM Mechanics WHERE mechanicID = ? AND userName = ? AND password = ?";
+            PreparedStatement st = connection.prepareStatement(removeMechanicQuery);
+
+            st.setString(1,mechanicID);
+            st.setString(2,mechanicName);
+            st.setString(3,mechanicPassword);
+
+            int numberOfRowsDeleted = st.executeUpdate();
+
+            if(numberOfRowsDeleted>0){
+                JOptionPane.showMessageDialog(null, "Mechanic removal successfull.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } else{
+                JOptionPane.showMessageDialog(null, "Mechanic removal failed, no such mechanic found.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+            st.close();
+        }
 
     }
 
@@ -213,6 +225,7 @@ public class ManagerFrame extends JFrame {
             @Override
             public void run() {
                 new ManagerFrame("Dilay", DatabaseConnection.connect());
+
             }
         });
     }
