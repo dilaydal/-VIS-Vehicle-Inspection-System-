@@ -1,5 +1,7 @@
 package View;
 
+import model.DatabaseConnection;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -82,7 +84,15 @@ public class ManagerFrame extends JFrame {
                 throw new RuntimeException(ex);
             }
         });
-        removeButton.addActionListener(e -> removeMechanic(connection));
+        removeButton.addActionListener(e -> {
+            try {
+                //System.out.println("here");
+                removeMechanic(connection);
+
+            } catch (SQLException ex){
+                throw new RuntimeException(ex);
+            }
+        });
 
 
         JPanel buttonPanel = new JPanel();
@@ -118,8 +128,13 @@ public class ManagerFrame extends JFrame {
 
         int result = JOptionPane.showConfirmDialog(null, addMechanicPanel, "Add Mechanic",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        //null means the dialog will appear on the center.
+        //addMechanicPanel is the custom panel that has all of our text fields and labels.
+        //JOptionPane.PLAIN_MESSAGE: no icon shown.
+        //returns 0 for OK, 2 for Cancel, -1 if user closes the dialog
 
         if (result == JOptionPane.OK_OPTION){
+            //get input from text fields. trim() for spaces.
             String mechanicName = mechanicNameField.getText().trim();
             String mechanicID = mechanicIDField.getText().trim();
             String mechanicContactInfo = mechanicContactInfoField.getText().trim();
@@ -150,7 +165,41 @@ public class ManagerFrame extends JFrame {
         }
     }
 
-    private void removeMechanic(Connection connection){
+    private void removeMechanic(Connection connection) throws SQLException{
+        JTextField mechanicNameField = new JTextField();
+        JTextField mechanicIDField = new JTextField();
+        JTextField mechanicContactInfoField = new JTextField();
+        JTextField mechanicPasswordField = new JTextField();
+
+        JPanel removeMechanicPanel = new JPanel(new GridLayout(4, 2, 5, 5));
+        removeMechanicPanel.add(new JLabel("Mechanic Name:"));
+        removeMechanicPanel.add(mechanicNameField);
+
+        removeMechanicPanel.add(new JLabel("Mechanic ID:"));
+        removeMechanicPanel.add(mechanicIDField);
+
+        removeMechanicPanel.add(new JLabel("Mechanic Contact Info:"));
+        removeMechanicPanel.add(mechanicContactInfoField);
+
+        removeMechanicPanel.add(new JLabel("Mechanic Password:"));
+        removeMechanicPanel.add(mechanicPasswordField);
+
+        int result = JOptionPane.showConfirmDialog(null, removeMechanicPanel, "Remove Mechanic" ,
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if(result == JOptionPane.OK_OPTION){
+            String mechanicName = mechanicNameField.getText();
+            String mechanicID = mechanicIDField.getText();
+            String mechanicContact = mechanicContactInfoField.getText();
+            String mechanicPassword = mechanicPasswordField.getText();
+
+
+            if(mechanicName.isEmpty() || mechanicID.isEmpty() || mechanicContact.isEmpty() || mechanicPassword.isEmpty()){
+                JOptionPane.showMessageDialog(null, "Please fill all fields.", "Error" , JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
 
     }
 
@@ -158,16 +207,16 @@ public class ManagerFrame extends JFrame {
         JOptionPane.showMessageDialog(this, "View All Appointments button is clicked.",
                 "Info", JOptionPane.INFORMATION_MESSAGE);
     }
-/*
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new ManagerFrame("Dilay");
+                new ManagerFrame("Dilay", DatabaseConnection.connect());
             }
         });
     }
 
- */
+
 
 }
