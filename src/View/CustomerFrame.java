@@ -1,36 +1,36 @@
 package View;
 
-import model.DatabaseConnection;
+import controller.*;
+import model.*;
 import users.User;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.*;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 public class CustomerFrame extends JFrame {
-    private User user;
+    private CustomerController customerController;
 
     public CustomerFrame(User user) {
         String customerUsername = user.getUsername();
-        this.user = user;
         setTitle("Customer Dashboard - " + customerUsername);
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new FlowLayout());
         setLocationRelativeTo(null);
 
+        CustomerModel customerModel = new CustomerModel(model.DatabaseConnection.connect());
+        customerController = new CustomerController(customerModel);
+
         JButton viewAppointmentsButton = new JButton("View Appointments");
         JButton rescheduleAppointmentButton = new JButton("Reschedule Appointment");
         JButton cancelAppointmentButton = new JButton("Cancel Appointment");
         JButton createAppointmentButton = new JButton("Create Appointment");
 
-        viewAppointmentsButton.addActionListener(e -> handleViewAppointments());
-        rescheduleAppointmentButton.addActionListener(e -> handleRescheduleAppointment());
-        cancelAppointmentButton.addActionListener(e -> handleCancelAppointment());
-        createAppointmentButton.addActionListener(e -> handleCreateAppointment());
+        viewAppointmentsButton.addActionListener(e -> handleViewAppointments(customerUsername));
+        rescheduleAppointmentButton.addActionListener(e -> handleRescheduleAppointment(customerUsername));
+        cancelAppointmentButton.addActionListener(e -> handleCancelAppointment(customerUsername));
+        createAppointmentButton.addActionListener(e -> handleCreateAppointment(customerUsername));
 
         add(viewAppointmentsButton);
         add(rescheduleAppointmentButton);
@@ -45,8 +45,8 @@ public class CustomerFrame extends JFrame {
         });
     }
 
-    private void handleViewAppointments() {
-        ArrayList<String> appointments = loadCustomerAppointments();
+    private void handleViewAppointments(String customerName) {
+        ArrayList<String> appointments = customerController.getAppointments(customerName, this);
         if (appointments.isEmpty()) {
             JOptionPane.showMessageDialog(this, "No appointments found.", "Info", JOptionPane.INFORMATION_MESSAGE);
         } else {
@@ -58,33 +58,8 @@ public class CustomerFrame extends JFrame {
         }
     }
 
-    private ArrayList<String> loadCustomerAppointments() {
-        String customerUsername = user.getUsername();
-        ArrayList<String> appointments = new ArrayList<>();
-        try (Connection connection = DatabaseConnection.connect()) {
-            String query = "SELECT id, appointment_date, appointment_time, vehicle_type FROM appointments WHERE customer_name = ?";
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
-                statement.setString(1, customerUsername);
-                ResultSet resultSet = statement.executeQuery();
-
-                while (resultSet.next()) {
-                    int id = resultSet.getInt("id");
-                    String date = resultSet.getString("appointment_date");
-                    String time = resultSet.getString("appointment_time");
-                    String vehicle = resultSet.getString("vehicle_type");
-
-                    appointments.add("ID: " + id + " | Date: " + date + " | Time: " + time + " | Vehicle: " + vehicle);
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading appointments: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        return appointments;
-    }
-
-    private void handleRescheduleAppointment() {
-        String selectedAppointment = showAppointmentDropdown("Reschedule");
+    private void handleRescheduleAppointment(String customerName) {
+        String selectedAppointment = showAppointmentDropdown("Reschedule", customerName);
         if (selectedAppointment == null) return;
 
         String newDate = JOptionPane.showInputDialog(this, "Enter New Appointment Date (YYYY-MM-DD):");
@@ -92,62 +67,19 @@ public class CustomerFrame extends JFrame {
 
         if (newDate != null && newTime != null && !newDate.isEmpty() && !newTime.isEmpty()) {
             int appointmentId = Integer.parseInt(selectedAppointment.split(" ")[1]);
-
-            try (Connection connection = DatabaseConnection.connect()) {
-                String query = "UPDATE appointments SET appointment_date = ?, appointment_time = ? WHERE id = ?";
-                try (PreparedStatement statement = connection.prepareStatement(query)) {
-                    statement.setString(1, newDate);
-                    statement.setString(2, newTime);
-                    statement.setInt(3, appointmentId);
-
-                    int rowsUpdated = statement.executeUpdate();
-                    if (rowsUpdated > 0) {
-                        JOptionPane.showMessageDialog(this, "Appointment rescheduled successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Failed to reschedule appointment.", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            customerController.rescheduleAppointment(appointmentId, newDate, newTime, this);
         }
     }
 
-    private void handleCancelAppointment() {
-        String selectedAppointment = showAppointmentDropdown("Cancel");
+    private void handleCancelAppointment(String customerName) {
+        String selectedAppointment = showAppointmentDropdown("Cancel", customerName);
         if (selectedAppointment == null) return;
 
         int appointmentId = Integer.parseInt(selectedAppointment.split(" ")[1]);
-
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Are you sure you want to cancel this appointment?",
-                "Confirm Cancellation",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirm == JOptionPane.YES_OPTION) {
-            try (Connection connection = DatabaseConnection.connect()) {
-                String query = "DELETE FROM appointments WHERE id = ?";
-                try (PreparedStatement statement = connection.prepareStatement(query)) {
-                    statement.setInt(1, appointmentId);
-
-                    int rowsDeleted = statement.executeUpdate();
-                    if (rowsDeleted > 0) {
-                        JOptionPane.showMessageDialog(this, "Appointment canceled successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Failed to cancel appointment.", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
+        customerController.cancelAppointment(appointmentId, this);
     }
 
-    private void handleCreateAppointment() {
+    private void handleCreateAppointment(String customerName) {
         JTextField vehicleTypeField = new JTextField();
         JTextField appointmentDateField = new JTextField();
         JTextField appointmentTimeField = new JTextField();
@@ -170,36 +102,16 @@ public class CustomerFrame extends JFrame {
             String appointmentDate = appointmentDateField.getText();
             String appointmentTime = appointmentTimeField.getText();
 
-            if (vehicleType.isEmpty() || appointmentDate.isEmpty() || appointmentTime.isEmpty()) {
+            if (!vehicleType.isEmpty() && !appointmentDate.isEmpty() && !appointmentTime.isEmpty()) {
+                customerController.createAppointment(customerName, vehicleType, appointmentDate, appointmentTime, this);
+            } else {
                 JOptionPane.showMessageDialog(this, "All fields are required!", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            try (Connection connection = DatabaseConnection.connect()) {
-                String customerUsername = user.getUsername();
-                String query = "INSERT INTO appointments (customer_name, vehicle_type, appointment_date, appointment_time) VALUES (?, ?, ?, ?)";
-                try (PreparedStatement statement = connection.prepareStatement(query)) {
-                    statement.setString(1, customerUsername);
-                    statement.setString(2, vehicleType);
-                    statement.setString(3, appointmentDate);
-                    statement.setString(4, appointmentTime);
-
-                    int rowsInserted = statement.executeUpdate();
-                    if (rowsInserted > 0) {
-                        JOptionPane.showMessageDialog(this, "Appointment created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Failed to create appointment.", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-    private String showAppointmentDropdown(String actionMessage) {
-        ArrayList<String> appointments = loadCustomerAppointments();
+    private String showAppointmentDropdown(String actionMessage, String customerName) {
+        ArrayList<String> appointments = customerController.getAppointments(customerName, this);
         if (appointments.isEmpty()) {
             JOptionPane.showMessageDialog(this, "No appointments found.", "Info", JOptionPane.INFORMATION_MESSAGE);
             return null;

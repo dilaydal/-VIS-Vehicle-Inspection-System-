@@ -34,4 +34,22 @@ public class MechanicModel {
         String query = "SELECT * FROM Mechanics";
         return connection.createStatement().executeQuery(query);
     }
+
+    public ResultSet getDailyTaskSchedule(String mechanicName) throws SQLException {
+        String query = "SELECT customer_name, vehicle_type, appointment_time FROM appointments WHERE mechanic_name = ?";
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setString(1, mechanicName);
+        return statement.executeQuery();
+    }
+
+    public boolean updateInspectionStatus(String customerName, String vehicleType, String appointmentTime, String status) throws SQLException {
+        String updateQuery = "UPDATE appointments SET inspection_status = ? WHERE customer_name = ? AND vehicle_type = ? AND appointment_time = ?";
+        PreparedStatement statement = connection.prepareStatement(updateQuery);
+        statement.setString(1, status);
+        statement.setString(2, customerName);
+        statement.setString(3, vehicleType);
+        statement.setString(4, appointmentTime);
+
+        return statement.executeUpdate() > 0;
+    }
 }

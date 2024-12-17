@@ -1,6 +1,7 @@
 package controller;
 
 import model.AuthenticationModel;
+import model.DatabaseConnection;
 import utils.AuthResult;
 import users.User;
 import View.CustomerFrame;
@@ -13,7 +14,7 @@ public class LoginController {
     private AuthenticationModel authModel;
 
     public LoginController() {
-        this.authModel = new AuthenticationModel(); // Default initialization
+        this.authModel = new AuthenticationModel(DatabaseConnection.connect()); 
     }
     public LoginController(AuthenticationModel authModel) {
         this.authModel = authModel;
