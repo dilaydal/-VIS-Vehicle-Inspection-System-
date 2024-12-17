@@ -6,6 +6,12 @@ import users.User;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 public class CustomerFrame extends JFrame {
@@ -59,7 +65,7 @@ public class CustomerFrame extends JFrame {
     }
 
     private void handleRescheduleAppointment(String customerName) {
-        String selectedAppointment = showAppointmentDropdown("Reschedule", customerName);
+        String selectedAppointment = showReschedulingAndCancelingAppointmentDropdown("Reschedule", customerName);
         if (selectedAppointment == null) return;
 
         String newDate = JOptionPane.showInputDialog(this, "Enter New Appointment Date (YYYY-MM-DD):");
@@ -72,7 +78,7 @@ public class CustomerFrame extends JFrame {
     }
 
     private void handleCancelAppointment(String customerName) {
-        String selectedAppointment = showAppointmentDropdown("Cancel", customerName);
+        String selectedAppointment = showReschedulingandCancelingAppointmentDropdown("Cancel", customerName);
         if (selectedAppointment == null) return;
 
         int appointmentId = Integer.parseInt(selectedAppointment.split(" ")[1]);
@@ -127,4 +133,47 @@ public class CustomerFrame extends JFrame {
                 appointments.get(0)
         );
     }
+    private String showReschedulingAndCancelingAppointmentDropdown(String actionMessage, String customerName) {
+        ArrayList<String> appointments = customerController.getAppointments(customerName, this);
+        if (appointments.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No appointments found.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            return null;
+        }
+
+        ArrayList<String> futureAppointments = new ArrayList<>();
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        for (String appointment : appointments) {
+            String[] parts = appointment.split(" \\| ");
+            String dateTimeString = parts[1].split(": ")[1] + " " + parts[2].split(": ")[1];
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            try {
+                LocalDateTime appointmentDateTime = LocalDateTime.parse(dateTimeString, formatter);
+                long hoursDifference = java.time.Duration.between(currentTime, appointmentDateTime).toHours();
+
+                if (hoursDifference >= 24) {
+                    futureAppointments.add(appointment);
+                }
+            } catch (DateTimeParseException e) {
+                System.err.println("Invalid date-time format for appointment: " + dateTimeString);
+            }
+        }
+
+        if (futureAppointments.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No appointments found that are at least 24 hours in the future.", "Info", JOptionPane.INFORMATION_MESSAGE);
+            return null;
+        }
+
+        return (String) JOptionPane.showInputDialog(
+                this,
+                "Select Appointment to " + actionMessage,
+                actionMessage + " Appointment",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                futureAppointments.toArray(),
+                futureAppointments.get(0)
+        );
+    }
+
 }
