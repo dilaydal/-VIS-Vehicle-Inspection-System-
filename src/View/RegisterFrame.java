@@ -76,9 +76,11 @@ public class RegisterFrame extends JFrame {
 
                     int rowsAffected = insertStmt.executeUpdate();
                     if (rowsAffected > 0) {
-                        JOptionPane.showMessageDialog(this, "Registration successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        dispose();
-                    } else {
+                        JOptionPane.showMessageDialog(this, "Registration successful! Redirecting to login...", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        new LoginFrame().setVisible(true); // Open LoginFrame
+                        dispose(); // Close RegisterFrame
+                    }
+                    else {
                         JOptionPane.showMessageDialog(this, "Registration failed. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
