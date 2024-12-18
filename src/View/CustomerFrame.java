@@ -64,6 +64,7 @@ public class CustomerFrame extends JFrame {
         }
     }
 
+
     private void handleRescheduleAppointment(String customerName) {
         String selectedAppointment = showReschedulingAndCancelingAppointmentDropdown("Reschedule", customerName);
         if (selectedAppointment == null) return;
@@ -78,7 +79,7 @@ public class CustomerFrame extends JFrame {
     }
 
     private void handleCancelAppointment(String customerName) {
-        String selectedAppointment = showReschedulingandCancelingAppointmentDropdown("Cancel", customerName);
+        String selectedAppointment = showReschedulingAndCancelingAppointmentDropdown("Cancel", customerName);
         if (selectedAppointment == null) return;
 
         int appointmentId = Integer.parseInt(selectedAppointment.split(" ")[1]);
@@ -90,10 +91,19 @@ public class CustomerFrame extends JFrame {
         JTextField appointmentDateField = new JTextField();
         JTextField appointmentTimeField = new JTextField();
 
+        ArrayList<String> mechanics = customerController.getMechanics(this);
+        if (mechanics.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No mechanics available.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JComboBox<String> mechanicDropdown = new JComboBox<>(mechanics.toArray(new String[0]));
+
         Object[] fields = {
                 "Vehicle Type:", vehicleTypeField,
                 "Appointment Date (YYYY-MM-DD):", appointmentDateField,
-                "Appointment Time (HH:MM):", appointmentTimeField
+                "Appointment Time (HH:MM):", appointmentTimeField,
+                "Select Mechanic:", mechanicDropdown
         };
 
         int result = JOptionPane.showConfirmDialog(
@@ -107,9 +117,11 @@ public class CustomerFrame extends JFrame {
             String vehicleType = vehicleTypeField.getText();
             String appointmentDate = appointmentDateField.getText();
             String appointmentTime = appointmentTimeField.getText();
+            String selectedMechanic = (String) mechanicDropdown.getSelectedItem();
+            int mechanicID = Integer.parseInt(selectedMechanic.split(" - ")[0]);
 
             if (!vehicleType.isEmpty() && !appointmentDate.isEmpty() && !appointmentTime.isEmpty()) {
-                customerController.createAppointment(customerName, vehicleType, appointmentDate, appointmentTime, this);
+                customerController.createAppointment(customerName, vehicleType, appointmentDate, appointmentTime, mechanicID,this);
             } else {
                 JOptionPane.showMessageDialog(this, "All fields are required!", "Error", JOptionPane.ERROR_MESSAGE);
             }

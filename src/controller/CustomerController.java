@@ -46,9 +46,9 @@ public class CustomerController {
         }
     }
 
-    public void createAppointment(String customerName, String vehicleType, String date, String time, JFrame parent) {
+    public void createAppointment(String customerName, String vehicleType, String date, String time, int mechanicID, JFrame parent) {
         try {
-            if (customerModel.createAppointment(customerName, vehicleType, date, time)) {
+            if (customerModel.createAppointment(customerName, vehicleType, date, time, mechanicID)) {
                 showInfoDialog(parent, "Appointment created successfully.");
             } else {
                 showErrorDialog(parent, "Failed to create appointment.");
@@ -57,7 +57,14 @@ public class CustomerController {
             showErrorDialog(parent, "Error creating appointment: " + e.getMessage());
         }
     }
-
+    public ArrayList<String> getMechanics(JFrame parent) {
+        try {
+            return customerModel.getMechanics();
+        } catch (SQLException e) {
+            showErrorDialog(parent, "Error loading mechanics: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
     private void showErrorDialog(JFrame parent, String message) {
         JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
