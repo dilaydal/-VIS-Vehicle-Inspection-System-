@@ -57,9 +57,21 @@ public class CustomerController {
             showErrorDialog(parent, "Error creating appointment: " + e.getMessage());
         }
     }
+    /*
     public ArrayList<String> getMechanics(JFrame parent) {
         try {
             return customerModel.getMechanics();
+        } catch (SQLException e) {
+            showErrorDialog(parent, "Error loading mechanics: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+     */
+
+    public ArrayList<String> getAvailableMechanics(JFrame parent, String appointmentDate, String appointmentTime) {
+        try {
+            return customerModel.getAvailableMechanics( appointmentDate, appointmentTime);
         } catch (SQLException e) {
             showErrorDialog(parent, "Error loading mechanics: " + e.getMessage());
             return new ArrayList<>();
