@@ -1,8 +1,8 @@
-package View;
+package main.java.View;
 
-import controller.*;
-import model.*;
-import users.User;
+import main.java.controller.*;
+import main.java.model.*;
+import main.java.users.User;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -21,7 +21,7 @@ public class MechanicFrame extends JFrame {
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
 
-        MechanicModel mechanicModel = new MechanicModel(model.DatabaseConnection.connect());
+        MechanicModel mechanicModel = new MechanicModel(main.java.model.DatabaseConnection.connect());
         mechanicController = new MechanicController(mechanicModel);
 
         JLabel titleLabel = new JLabel("Daily Task Schedule", JLabel.CENTER);

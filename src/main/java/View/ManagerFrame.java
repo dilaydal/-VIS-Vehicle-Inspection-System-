@@ -1,10 +1,10 @@
-package View;
+package main.java.View;
 
-import controller.ManagerController;
-import model.MechanicModel;
-import model.AppointmentModel;
-import model.DatabaseConnection;
-import users.User;
+import main.java.controller.ManagerController;
+import main.java.model.MechanicModel;
+import main.java.model.AppointmentModel;
+import main.java.model.DatabaseConnection;
+import main.java.users.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,7 +18,7 @@ public class ManagerFrame extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Initialize models and controller
+        // Initialize models and main.java.controller
         MechanicModel mechanicModel = new MechanicModel(DatabaseConnection.connect());
         AppointmentModel appointmentModel = new AppointmentModel(DatabaseConnection.connect());
         this.managerController = new ManagerController(mechanicModel, appointmentModel);

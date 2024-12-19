@@ -1,12 +1,12 @@
-package controller;
+package main.java.controller;
 
-import model.AuthenticationModel;
-import model.DatabaseConnection;
-import utils.AuthResult;
-import users.User;
-import View.CustomerFrame;
-import View.MechanicFrame;
-import View.ManagerFrame;
+import main.java.model.AuthenticationModel;
+import main.java.model.DatabaseConnection;
+import main.java.utils.AuthResult;
+import main.java.users.User;
+import main.java.View.CustomerFrame;
+import main.java.View.MechanicFrame;
+import main.java.View.ManagerFrame;
 
 import javax.swing.*;
 

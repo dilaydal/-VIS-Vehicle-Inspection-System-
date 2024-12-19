@@ -1,6 +1,6 @@
-package controller;
+package main.java.controller;
 
-import model.MechanicModel;
+import main.java.model.MechanicModel;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

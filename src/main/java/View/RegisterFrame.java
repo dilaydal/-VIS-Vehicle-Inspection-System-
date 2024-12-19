@@ -1,8 +1,8 @@
-package View;
+package main.java.View;
 
-import controller.RegisterController;
-import model.AuthenticationModel;
-import model.DatabaseConnection;
+import main.java.controller.RegisterController;
+import main.java.model.AuthenticationModel;
+import main.java.model.DatabaseConnection;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -40,7 +40,7 @@ public class RegisterFrame extends JFrame {
         add(fullNameField);
         add(registerButton);
 
-        // Set up the controller
+        // Set up the main.java.controller
         AuthenticationModel authenticationModel = new AuthenticationModel(DatabaseConnection.connect());
         RegisterController registerController = new RegisterController(authenticationModel);
 

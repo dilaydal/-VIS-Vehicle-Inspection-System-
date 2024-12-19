@@ -1,6 +1,6 @@
-package controller;
+package main.java.controller;
 
-import model.*;
+import main.java.model.*;
 
 import javax.swing.*;
 import java.sql.ResultSet;

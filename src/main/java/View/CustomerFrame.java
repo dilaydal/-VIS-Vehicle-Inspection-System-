@@ -1,14 +1,11 @@
-package View;
+package main.java.View;
 
-import controller.*;
-import model.*;
-import users.User;
+import main.java.controller.*;
+import main.java.model.*;
+import main.java.users.User;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -25,7 +22,7 @@ public class CustomerFrame extends JFrame {
         setLayout(new FlowLayout());
         setLocationRelativeTo(null);
 
-        CustomerModel customerModel = new CustomerModel(model.DatabaseConnection.connect());
+        CustomerModel customerModel = new CustomerModel(main.java.model.DatabaseConnection.connect());
         customerController = new CustomerController(customerModel);
 
         JButton viewAppointmentsButton = new JButton("View Appointments");

@@ -1,7 +1,7 @@
-package model;
+package main.java.model;
 
-import users.*;
-import utils.AuthResult;
+import main.java.users.*;
+import main.java.utils.AuthResult;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

@@ -1,7 +1,7 @@
-package controller;
+package main.java.controller;
 
-import model.AuthenticationModel;
-import View.MainFrame;
+import main.java.model.AuthenticationModel;
+import main.java.View.MainFrame;
 import javax.swing.*;
 
 public class RegisterController {

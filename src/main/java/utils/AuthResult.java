@@ -1,6 +1,6 @@
-package utils;
+package main.java.utils;
 
-import users.User;
+import main.java.users.User;
 
 public class AuthResult {
     private String type; 

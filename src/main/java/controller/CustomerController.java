@@ -1,6 +1,6 @@
-package controller;
+package main.java.controller;
 
-import model.CustomerModel;
+import main.java.model.CustomerModel;
 
 import javax.swing.*;
 import java.sql.SQLException;

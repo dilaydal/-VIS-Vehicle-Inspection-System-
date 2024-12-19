@@ -1,4 +1,4 @@
-package users;
+package main.java.users;
 
 public class Mechanic extends User {
 

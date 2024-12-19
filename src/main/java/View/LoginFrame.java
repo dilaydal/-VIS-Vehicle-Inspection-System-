@@ -1,12 +1,9 @@
-package View;
+package main.java.View;
 import javax.swing.*;
 
-import controller.*;
-import model.AuthenticationModel;
-import model.DatabaseConnection;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import main.java.controller.*;
+import main.java.model.AuthenticationModel;
+import main.java.model.DatabaseConnection;
 
 
 public class LoginFrame extends JFrame {
@@ -50,25 +47,4 @@ public class LoginFrame extends JFrame {
         });
          
     }
-
-    /* Both of this functions were unused at the moment that's why i commented out
-    private boolean validatePassword(String password, String storedHash) {
-        String hashedPassword = hashPassword(password);
-        return hashedPassword.equals(storedHash);
-    }
-    
-    private String hashPassword(String password) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = digest.digest(password.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashedBytes) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error hashing password", e);
-        }
-    }
-    */
 }
