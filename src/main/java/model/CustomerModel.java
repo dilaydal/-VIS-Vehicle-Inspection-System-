@@ -80,16 +80,18 @@ public class CustomerModel {
         }
     }
 
-   public boolean rescheduleAppointment(int appointmentId, String newDate, String newTime) throws SQLException {
-        String query = "UPDATE appointments SET appointment_date = ?, appointment_time = ? WHERE id = ?";
+    public boolean rescheduleAppointment(int appointmentId, String newDate, String newTime, int mechanicID) throws SQLException {
+        String query = "UPDATE appointments SET appointment_date = ?, appointment_time = ?, mechanicID = ? WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, newDate);
             statement.setString(2, newTime);
-            statement.setInt(3, appointmentId);
+            statement.setInt(3, mechanicID);
+            statement.setInt(4, appointmentId);
 
             return statement.executeUpdate() > 0;
         }
     }
+
 
 
 

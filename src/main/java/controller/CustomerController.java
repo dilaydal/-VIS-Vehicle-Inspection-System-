@@ -22,9 +22,9 @@ public class CustomerController {
         }
     }
 
-    public void rescheduleAppointment(int appointmentId, String newDate, String newTime, JFrame parent) {
+    public void rescheduleAppointment(int appointmentId, String newDate, String newTime, int mechanicID, JFrame parent) {
         try {
-            if (customerModel.rescheduleAppointment(appointmentId, newDate, newTime)) {
+            if (customerModel.rescheduleAppointment(appointmentId, newDate, newTime, mechanicID)) {
                 showInfoDialog(parent, "Appointment rescheduled successfully.");
             } else {
                 showErrorDialog(parent, "Failed to reschedule appointment.");
@@ -33,6 +33,7 @@ public class CustomerController {
             showErrorDialog(parent, "Error rescheduling appointment: " + e.getMessage());
         }
     }
+
 
     public void cancelAppointment(int appointmentId, JFrame parent) {
         try {

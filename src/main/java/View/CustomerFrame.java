@@ -71,14 +71,63 @@ public class CustomerFrame extends JFrame {
         String selectedAppointment = showReschedulingAndCancelingAppointmentDropdown("Reschedule", customerName);
         if (selectedAppointment == null) return;
 
+        int appointmentId = Integer.parseInt(selectedAppointment.split(" ")[1]);
+
         String newDate = JOptionPane.showInputDialog(this, "Enter New Appointment Date (YYYY-MM-DD):");
         String newTime = JOptionPane.showInputDialog(this, "Enter New Appointment Time (HH:MM):");
 
-        if (newDate != null && newTime != null && !newDate.isEmpty() && !newTime.isEmpty()) {
-            int appointmentId = Integer.parseInt(selectedAppointment.split(" ")[1]);
-            customerController.rescheduleAppointment(appointmentId, newDate, newTime, this);
+        if (newDate == null || newTime == null || newDate.isEmpty() || newTime.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Date and time cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+            LocalDateTime newDateTime = LocalDateTime.of(
+                    LocalDate.parse(newDate, dateFormatter),
+                    LocalTime.parse(newTime, timeFormatter)
+            );
+
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            if (newDateTime.isBefore(currentDateTime)) {
+                JOptionPane.showMessageDialog(this, "Cannot reschedule to a past time.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            ArrayList<String> availableMechanics = customerController.getAvailableMechanics(this, newDate, newTime);
+
+            if (availableMechanics.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No mechanics available for the selected date and time.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            JComboBox<String> mechanicDropdown = new JComboBox<>(availableMechanics.toArray(new String[0]));
+            Object[] fields = {
+                    "Select New Mechanic: ", mechanicDropdown
+            };
+
+            int result = JOptionPane.showConfirmDialog(
+                    this,
+                    fields,
+                    "Reschedule Appointment",
+                    JOptionPane.OK_CANCEL_OPTION
+            );
+
+            if (result == JOptionPane.OK_OPTION) {
+                String selectedMechanic = (String) mechanicDropdown.getSelectedItem();
+                int mechanicID = Integer.parseInt(selectedMechanic.split(" - ")[0]);
+
+                customerController.rescheduleAppointment(appointmentId, newDate, newTime, mechanicID, this);
+            }
+
+        } catch (DateTimeParseException e) {
+            JOptionPane.showMessageDialog(this, "Invalid date or time format.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid mechanic selection.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
 
     private void handleCancelAppointment(String customerName) {
         String selectedAppointment = showReschedulingAndCancelingAppointmentDropdown("Cancel", customerName);
