@@ -41,14 +41,15 @@ public class ManagerController {
 
     public void viewAllAppointments(JFrame parent) {
         try {
-            ResultSet resultSet = appointmentModel.getAllAppointments();
+            ResultSet resultSet = appointmentModel.getAllAppointmentsWithJoinCustomers();
             StringBuilder appointments = new StringBuilder("Appointments:\n");
 
             while (resultSet.next()) {
-                appointments.append("Customer: ").append(resultSet.getString("customer_name"))
+                appointments.append("Customer: ").append(resultSet.getString("fullName"))
                         .append(", Vehicle: ").append(resultSet.getString("vehicle_type"))
                         .append(", Date: ").append(resultSet.getDate("appointment_date"))
                         .append(", Time: ").append(resultSet.getTime("appointment_time"))
+                        .append(", Mechanic ID: ").append(resultSet.getInt("mechanicID"))
                         .append("\n");
             }
 
