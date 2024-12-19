@@ -34,6 +34,7 @@ CREATE TABLE appointments (
     vehicle_type VARCHAR(255) NOT NULL,
     appointment_date DATE NOT NULL,
     appointment_time TIME NOT NULL,
+    inspection_status ENUM('Failed', 'Passed') NULL,
     FOREIGN KEY (mechanicID) REFERENCES Mechanics(mechanicID),
     FOREIGN KEY (customerID) REFERENCES Customers(customerID)
 );
