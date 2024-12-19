@@ -35,10 +35,10 @@ public class MechanicModel {
         return connection.createStatement().executeQuery(query);
     }
 
-    public ResultSet getDailyTaskSchedule(String mechanicName) throws SQLException {
-        String query = "SELECT customer_name, vehicle_type, appointment_time FROM appointments WHERE mechanic_name = ?";
+    public ResultSet getDailyTaskSchedule(int mechanicID) throws SQLException {
+        String query = "SELECT customer_name, vehicle_type, appointment_time FROM appointments WHERE mechanicID = ?";
         PreparedStatement statement = connection.prepareStatement(query);
-        statement.setString(1, mechanicName);
+        statement.setInt(1, mechanicID);
         return statement.executeQuery();
     }
 

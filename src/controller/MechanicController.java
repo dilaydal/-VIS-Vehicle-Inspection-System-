@@ -14,9 +14,9 @@ public class MechanicController {
         this.mechanicModel = mechanicModel;
     }
 
-    public void loadMechanicSchedule(String mechanicName, DefaultTableModel tableModel, JFrame parent) {
+    public void loadMechanicSchedule(int mechanicID, DefaultTableModel tableModel, JFrame parent) {
         try {
-            ResultSet resultSet = mechanicModel.getDailyTaskSchedule(mechanicName);
+            ResultSet resultSet = mechanicModel.getDailyTaskSchedule(mechanicID);
 
             while (resultSet.next()) {
                 String customerName = resultSet.getString("customer_name");

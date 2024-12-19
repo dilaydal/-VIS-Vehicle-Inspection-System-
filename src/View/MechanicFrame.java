@@ -14,6 +14,7 @@ public class MechanicFrame extends JFrame {
 
     public MechanicFrame(User user) {
         String mechanicName = user.getUsername();
+        int mechanicID=user.getId();
         setTitle("Mechanic Dashboard - " + mechanicName);
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -58,7 +59,7 @@ public class MechanicFrame extends JFrame {
         add(tableScrollPane, BorderLayout.CENTER);
         add(updateStatusButton, BorderLayout.SOUTH);
 
-        mechanicController.loadMechanicSchedule(mechanicName, tableModel, this);
+        mechanicController.loadMechanicSchedule(mechanicID, tableModel, this);
 
         addWindowListener(new WindowAdapter() {
             @Override
