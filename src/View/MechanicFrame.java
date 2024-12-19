@@ -54,10 +54,17 @@ public class MechanicFrame extends JFrame {
                 mechanicController.updateInspectionStatus(customerName, vehicleType, appointmentTime, status, this);
             }
         });
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.addActionListener(e -> {new MainFrame().setVisible(true);dispose();});
 
         add(titleLabel, BorderLayout.NORTH);
         add(tableScrollPane, BorderLayout.CENTER);
-        add(updateStatusButton, BorderLayout.SOUTH);
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
+        buttonPanel.add(updateStatusButton);
+        buttonPanel.add(logoutButton);
+
+        add(buttonPanel, BorderLayout.SOUTH);
 
         mechanicController.loadMechanicSchedule(mechanicID, tableModel, this);
 

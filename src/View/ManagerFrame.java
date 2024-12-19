@@ -31,9 +31,12 @@ public class ManagerFrame extends JFrame {
         JButton viewAppointmentsButton = new JButton("View All Appointments");
         viewAppointmentsButton.addActionListener(e -> managerController.viewAllAppointments(this));
 
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.addActionListener(e -> {new MainFrame().setVisible(true);dispose();});
+
         mainPanel.add(addRemoveMechanicButton);
         mainPanel.add(viewAppointmentsButton);
-
+        mainPanel.add(logoutButton);
         add(mainPanel);
     }
 

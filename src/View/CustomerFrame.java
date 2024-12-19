@@ -32,16 +32,19 @@ public class CustomerFrame extends JFrame {
         JButton rescheduleAppointmentButton = new JButton("Reschedule Appointment");
         JButton cancelAppointmentButton = new JButton("Cancel Appointment");
         JButton createAppointmentButton = new JButton("Create Appointment");
+        JButton logoutButton = new JButton("Logout");
 
         viewAppointmentsButton.addActionListener(e -> handleViewAppointments(customerUsername));
         rescheduleAppointmentButton.addActionListener(e -> handleRescheduleAppointment(customerUsername));
         cancelAppointmentButton.addActionListener(e -> handleCancelAppointment(customerUsername));
         createAppointmentButton.addActionListener(e -> handleCreateAppointment(customerUsername));
+        logoutButton.addActionListener(e -> {new MainFrame().setVisible(true);dispose();});
 
         add(viewAppointmentsButton);
         add(rescheduleAppointmentButton);
         add(cancelAppointmentButton);
         add(createAppointmentButton);
+        add(logoutButton);
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -145,7 +148,6 @@ public class CustomerFrame extends JFrame {
             int mechanicID = Integer.parseInt(selectedMechanic.split(" - ")[0]); //extracts id before -
 
             customerController.createAppointment(customerName,vehicleType,appointmentDateStr,appointmentTimeStr,mechanicID,this);
-            JOptionPane.showMessageDialog(this, "Appointment created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid mechanic selection.", "Error", JOptionPane.ERROR_MESSAGE);
