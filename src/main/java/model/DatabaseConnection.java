@@ -1,4 +1,5 @@
 package main.java.model;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -6,7 +7,7 @@ import java.sql.SQLException;
 public class DatabaseConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/VIS";
     private static final String USERNAME = "root";
-    private static final String PASSWORD = "15mysql93"; //personal info
+    private static final String PASSWORD = "cs202"; // personal info
 
     public static Connection connect() {
         try {
@@ -15,7 +16,7 @@ public class DatabaseConnection {
         } catch (ClassNotFoundException | SQLException e) {
             System.out.println(PASSWORD);
             throw new RuntimeException("Database connection failed", e);
-            
+
         }
     }
 }

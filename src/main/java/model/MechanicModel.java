@@ -1,6 +1,7 @@
 package main.java.model;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,20 +37,41 @@ public class MechanicModel {
     }
 
     public ResultSet getDailyTaskSchedule(int mechanicID) throws SQLException {
-        String query = "SELECT customer_name, vehicle_type, appointment_time FROM appointments WHERE mechanicID = ?";
+        String query = "SELECT id,customer_name, vehicle_type, appointment_time,inspection_status FROM appointments WHERE mechanicID = ?";
         PreparedStatement statement = connection.prepareStatement(query);
         statement.setInt(1, mechanicID);
         return statement.executeQuery();
     }
+    /*
+     * public boolean updateInspectionStatus(int mechanicID, String customerName,
+     * String vehicleType,
+     * String appointmentTime, String status) throws SQLException {
+     * String updateQuery = "UPDATE appointments " +
+     * "SET inspection_status = ? " +
+     * "WHERE mechanicID = ? AND customer_name = ? " +
+     * "AND vehicle_type = ? AND appointment_time = ?";
+     * PreparedStatement statement = connection.prepareStatement(updateQuery);
+     * statement.setString(1, status); // inspection_status
+     * statement.setInt(2, mechanicID); // mechanicID
+     * 
+     * statement.setString(3, customerName); // customer_name
+     * statement.setString(4, vehicleType); // vehicle_type
+     * 
+     * statement.setString(5, appointmentTime); // appointment_time
+     * return statement.executeUpdate() > 0;
+     * }
+     */
 
-    public boolean updateInspectionStatus(String customerName, String vehicleType, String appointmentTime, String status) throws SQLException {
-        String updateQuery = "UPDATE appointments SET inspection_status = ? WHERE customer_name = ? AND vehicle_type = ? AND appointment_time = ?";
-        PreparedStatement statement = connection.prepareStatement(updateQuery);
-        statement.setString(1, status);
-        statement.setString(2, customerName);
-        statement.setString(3, vehicleType);
-        statement.setString(4, appointmentTime);
+    public void updateInspectionStatus(int appointmentID, String newStatus) {
+        String query = "UPDATE Appointments SET inspection_status = ? WHERE id = ?";
 
-        return statement.executeUpdate() > 0;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, newStatus);
+            preparedStatement.setInt(2, appointmentID);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

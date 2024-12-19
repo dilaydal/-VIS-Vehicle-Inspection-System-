@@ -1,5 +1,6 @@
 package main.java.controller;
 
+import main.java.model.Appointment;
 import main.java.model.MechanicModel;
 
 import javax.swing.*;
@@ -19,27 +20,49 @@ public class MechanicController {
             ResultSet resultSet = mechanicModel.getDailyTaskSchedule(mechanicID);
 
             while (resultSet.next()) {
+                int appointmentID = resultSet.getInt("id");
                 String customerName = resultSet.getString("customer_name");
                 String vehicleType = resultSet.getString("vehicle_type");
                 String appointmentTime = resultSet.getString("appointment_time");
-                tableModel.addRow(new Object[]{customerName, vehicleType, appointmentTime});
+                String inspectionStatus = resultSet.getString("inspection_status");
+                tableModel.addRow(
+                        new Object[] { appointmentID, customerName, vehicleType, appointmentTime, inspectionStatus });
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(parent, "Error loading schedule: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(parent, "Error loading schedule: " + e.getMessage(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public void updateInspectionStatus(String customerName, String vehicleType, String appointmentTime, String status, JFrame parent) {
-        try {
-            boolean isUpdated = mechanicModel.updateInspectionStatus(customerName, vehicleType, appointmentTime, status);
+    /*
+     * public void updateInspectionStatus(int mechanicID, String customerName,
+     * String vehicleType,
+     * String appointmentTime, String status, JFrame parent) {
+     * try {
+     * boolean isUpdated = mechanicModel.updateInspectionStatus(mechanicID,
+     * customerName,
+     * vehicleType,
+     * appointmentTime, status);
+     * 
+     * if (isUpdated) {
+     * JOptionPane.showMessageDialog(parent, "Inspection status updated to: " +
+     * status, "Success",
+     * JOptionPane.INFORMATION_MESSAGE);
+     * } else {
+     * JOptionPane.showMessageDialog(parent,
+     * "No records were updated. Please check the database.", "Error",
+     * JOptionPane.ERROR_MESSAGE);
+     * }
+     * } catch (SQLException e) {
+     * JOptionPane.showMessageDialog(parent, "Error updating status: " +
+     * e.getMessage(), "Error",
+     * JOptionPane.ERROR_MESSAGE);
+     * }
+     * }
+     * 
+     */
 
-            if (isUpdated) {
-                JOptionPane.showMessageDialog(parent, "Inspection status updated to: " + status, "Success", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(parent, "No records were updated. Please check the database.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(parent, "Error updating status: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    public void updateInspectionStatus(int AppointmentID, String newStatus) {
+        mechanicModel.updateInspectionStatus(AppointmentID, newStatus);
     }
 }
