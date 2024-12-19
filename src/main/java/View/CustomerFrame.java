@@ -6,7 +6,9 @@ import main.java.users.User;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -86,11 +88,10 @@ public class CustomerFrame extends JFrame {
         customerController.cancelAppointment(appointmentId, this);
     }
 
-    private void handleCreateAppointment(String customerName) {
+   private void handleCreateAppointment(String customerName) {
         JTextField vehicleTypeField = new JTextField();
         JTextField appointmentDateField = new JTextField();
         JTextField appointmentTimeField = new JTextField();
-
 
         Object[] initialFields = {
                 "Vehicle Type:", vehicleTypeField,
@@ -105,24 +106,40 @@ public class CustomerFrame extends JFrame {
                 JOptionPane.OK_CANCEL_OPTION
         );
 
-        if(initialResult!=JOptionPane.OK_OPTION){
-            return; //exit if not ok
+        if (initialResult != JOptionPane.OK_OPTION) {
+            return; // Kullanıcı "OK" dışında bir şey seçerse çıkış yap
         }
 
         String vehicleType = vehicleTypeField.getText();
         String appointmentDateStr = appointmentDateField.getText();
         String appointmentTimeStr = appointmentTimeField.getText();
 
-        if(vehicleType.isEmpty() || appointmentDateStr.isEmpty() || appointmentTimeStr.isEmpty()){
-            JOptionPane.showMessageDialog(this, "All fields are required!", "Error", JOptionPane.ERROR_MESSAGE );
+        if (vehicleType.isEmpty() || appointmentDateStr.isEmpty() || appointmentTimeStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "All fields are required!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        try{
+        try {
+            
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+            LocalDateTime appointmentDateTime = LocalDateTime.of(
+                    LocalDate.parse(appointmentDateStr, dateFormatter),
+                    LocalTime.parse(appointmentTimeStr, timeFormatter)
+            );
+
+            LocalDateTime currentDateTime = LocalDateTime.now();
+
+            if (appointmentDateTime.isBefore(currentDateTime)) {
+                JOptionPane.showMessageDialog(this, "You cannot create an appointment in the past.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            
             ArrayList<String> availableMechanics = customerController.getAvailableMechanics(this, appointmentDateStr, appointmentTimeStr);
 
             if (availableMechanics.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "No mechanics available for selected time and date.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "No mechanics available for the selected time and date.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -139,13 +156,16 @@ public class CustomerFrame extends JFrame {
             );
 
             if (finalResult != JOptionPane.OK_OPTION) {
-                return; // Exit if the user cancels
+                return; 
             }
+
             String selectedMechanic = (String) mechanicDropdown.getSelectedItem();
-            int mechanicID = Integer.parseInt(selectedMechanic.split(" - ")[0]); //extracts id before -
+            int mechanicID = Integer.parseInt(selectedMechanic.split(" - ")[0]); 
 
-            customerController.createAppointment(customerName,vehicleType,appointmentDateStr,appointmentTimeStr,mechanicID,this);
+            customerController.createAppointment(customerName, vehicleType, appointmentDateStr, appointmentTimeStr, mechanicID, this);
 
+        } catch (DateTimeParseException e) {
+            JOptionPane.showMessageDialog(this, "Invalid date or time format.", "Error", JOptionPane.ERROR_MESSAGE);
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid mechanic selection.", "Error", JOptionPane.ERROR_MESSAGE);
         }
