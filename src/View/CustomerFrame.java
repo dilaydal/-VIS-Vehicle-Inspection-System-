@@ -91,40 +91,64 @@ public class CustomerFrame extends JFrame {
         JTextField appointmentDateField = new JTextField();
         JTextField appointmentTimeField = new JTextField();
 
-        ArrayList<String> mechanics = customerController.getMechanics(this);
-        if (mechanics.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No mechanics available.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
 
-        JComboBox<String> mechanicDropdown = new JComboBox<>(mechanics.toArray(new String[0]));
-
-        Object[] fields = {
+        Object[] initialFields = {
                 "Vehicle Type:", vehicleTypeField,
                 "Appointment Date (YYYY-MM-DD):", appointmentDateField,
                 "Appointment Time (HH:MM):", appointmentTimeField,
-                "Select Mechanic:", mechanicDropdown
         };
 
-        int result = JOptionPane.showConfirmDialog(
+        int initialResult = JOptionPane.showConfirmDialog(
                 this,
-                fields,
+                initialFields,
                 "Create New Appointment",
                 JOptionPane.OK_CANCEL_OPTION
         );
 
-        if (result == JOptionPane.OK_OPTION) {
-            String vehicleType = vehicleTypeField.getText();
-            String appointmentDate = appointmentDateField.getText();
-            String appointmentTime = appointmentTimeField.getText();
-            String selectedMechanic = (String) mechanicDropdown.getSelectedItem();
-            int mechanicID = Integer.parseInt(selectedMechanic.split(" - ")[0]);
+        if(initialResult!=JOptionPane.OK_OPTION){
+            return; //exit if not ok
+        }
 
-            if (!vehicleType.isEmpty() && !appointmentDate.isEmpty() && !appointmentTime.isEmpty()) {
-                customerController.createAppointment(customerName, vehicleType, appointmentDate, appointmentTime, mechanicID,this);
-            } else {
-                JOptionPane.showMessageDialog(this, "All fields are required!", "Error", JOptionPane.ERROR_MESSAGE);
+        String vehicleType = vehicleTypeField.getText();
+        String appointmentDateStr = appointmentDateField.getText();
+        String appointmentTimeStr = appointmentTimeField.getText();
+
+        if(vehicleType.isEmpty() || appointmentDateStr.isEmpty() || appointmentTimeStr.isEmpty()){
+            JOptionPane.showMessageDialog(this, "All fields are required!", "Error", JOptionPane.ERROR_MESSAGE );
+            return;
+        }
+
+        try{
+            ArrayList<String> availableMechanics = customerController.getAvailableMechanics(this, appointmentDateStr, appointmentTimeStr);
+
+            if (availableMechanics.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No mechanics available for selected time and date.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            JComboBox<String> mechanicDropdown = new JComboBox<>(availableMechanics.toArray(new String[0]));
+            Object[] finalFields = {
+                    "Select Mechanic: ", mechanicDropdown
+            };
+
+            int finalResult = JOptionPane.showConfirmDialog(
+                    this,
+                    finalFields,
+                    "Select Mechanic",
+                    JOptionPane.OK_CANCEL_OPTION
+            );
+
+            if (finalResult != JOptionPane.OK_OPTION) {
+                return; // Exit if the user cancels
+            }
+            String selectedMechanic = (String) mechanicDropdown.getSelectedItem();
+            int mechanicID = Integer.parseInt(selectedMechanic.split(" - ")[0]); //extracts id before -
+
+            customerController.createAppointment(customerName,vehicleType,appointmentDateStr,appointmentTimeStr,mechanicID,this);
+            JOptionPane.showMessageDialog(this, "Appointment created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid mechanic selection.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

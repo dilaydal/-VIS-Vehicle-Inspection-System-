@@ -13,6 +13,7 @@ public class CustomerModel {
     public CustomerModel(Connection connection) {
         this.connection = connection;
     }
+    /*
     public ArrayList<String> getMechanics() throws SQLException {
         String query = "SELECT mechanicID, userName FROM Mechanics";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -25,6 +26,37 @@ public class CustomerModel {
                 mechanics.add(id + " - " + name);
             }
             return mechanics;
+        }
+    }
+
+ */
+    public ArrayList<String> getAvailableMechanics(String appointmentDate, String appointmentTime) throws SQLException {
+        String query = """
+                       SELECT m.*
+                       FROM Mechanics m
+                       WHERE NOT EXISTS (
+                           SELECT 1
+                           FROM appointments a
+                           WHERE a.mechanicID = m.mechanicID
+                               AND a.appointment_date = ?
+                               AND a.appointment_time = ?
+                       )
+        """;
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+
+
+            ps.setString(1, appointmentDate);
+            ps.setString(2, appointmentTime);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            ArrayList<String> availableMechanics = new ArrayList<>();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("mechanicID");
+                String name = resultSet.getString("userName");
+                availableMechanics.add(id + " - " + name);
+            }
+            return availableMechanics;
         }
     }
 
