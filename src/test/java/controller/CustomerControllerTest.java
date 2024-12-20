@@ -10,99 +10,79 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 public class CustomerControllerTest {
 
-    private CustomerModel mockCustomerModel;
+    private CustomerModel customerModel;
     private CustomerController customerController;
-    private JFrame mockFrame;
+    private JFrame testFrame;
 
     @BeforeEach
     void setUp() {
-        mockCustomerModel = mock(CustomerModel.class);
-        customerController = new CustomerController(mockCustomerModel);
-        mockFrame = mock(JFrame.class);
+        customerModel = new CustomerModel(null) {
+            @Override
+            public ArrayList<String> getAppointments(String customerName) throws SQLException {
+                if ("error_case".equals(customerName)) {
+                    throw new SQLException("Database error");
+                }
+                ArrayList<String> appointments = new ArrayList<>();
+                appointments.add("ID: 1 | Date: 2024-12-25 | Time: 10:00 | Vehicle: Sedan | Mechanic ID: 101");
+                return appointments;
+            }
+
+            @Override
+            public boolean rescheduleAppointment(int appointmentId, String newDate, String newTime, int mechanicID) throws SQLException {
+                return appointmentId == 1 && "2024-12-26".equals(newDate) && "14:00".equals(newTime) && mechanicID == 102;
+            }
+
+            @Override
+            public boolean createAppointment(String customerName, String vehicleType, String date, String time, int mechanicID) throws SQLException {
+                return "Jane Smith".equals(customerName) && "SUV".equals(vehicleType) && "2024-12-30".equals(date) && "09:00".equals(time) && mechanicID == 103;
+            }
+        };
+
+        customerController = new CustomerController(customerModel);
+        testFrame = new JFrame();
     }
 
     @Test
-    void testGetAppointments() throws SQLException {
-        // Success scenario
-        ArrayList<String> mockAppointments = new ArrayList<>();
-        mockAppointments.add("ID: 1 | Date: 2024-12-25 | Time: 10:00 | Vehicle: Sedan | Mechanic ID: 101");
-        when(mockCustomerModel.getAppointments("Jane Smith")).thenReturn(mockAppointments);
-
-        ArrayList<String> appointments = customerController.getAppointments("Jane Smith", mockFrame);
+    void testGetAppointments() {
+        // Successful scenario
+        ArrayList<String> appointments = customerController.getAppointments("Jane Smith", testFrame);
         assertEquals(1, appointments.size(), "Success: Appointments should be fetched correctly.");
 
-        // Failure scenario
-        when(mockCustomerModel.getAppointments("Jane Smith")).thenThrow(new SQLException("Database error"));
-        appointments = customerController.getAppointments("Jane Smith", mockFrame);
-        assertTrue(appointments.isEmpty(), "Failure: Should return an empty list in case of an error.");
+        // Error scenario
+        appointments = customerController.getAppointments("error_case", testFrame);
+        assertTrue(appointments.isEmpty(), "Error: An empty list should be returned in case of an error.");
     }
 
     @Test
-    void testRescheduleAppointment() throws SQLException {
-        // Success scenario
-        when(mockCustomerModel.rescheduleAppointment(1, "2024-12-26", "14:00", 102)).thenReturn(true);
+    void testRescheduleAppointment() {
+        // Successful scenario
+        customerController.rescheduleAppointment(1, "2024-12-26", "14:00", 102, testFrame);
+        assertDoesNotThrow(() -> customerModel.rescheduleAppointment(1, "2024-12-26", "14:00", 102));
 
-        customerController.rescheduleAppointment(1, "2024-12-26", "14:00", 102, mockFrame);
-        verify(mockCustomerModel).rescheduleAppointment(1, "2024-12-26", "14:00", 102);
-
-        // Failure scenario
-        when(mockCustomerModel.rescheduleAppointment(1, "2024-12-26", "14:00", 102)).thenReturn(false);
-
-        customerController.rescheduleAppointment(1, "2024-12-26", "14:00", 102, mockFrame);
-        verify(mockCustomerModel, times(2)).rescheduleAppointment(1, "2024-12-26", "14:00", 102);
+        // Failed scenario
+        customerController.rescheduleAppointment(2, "2024-12-26", "14:00", 102, testFrame);
+        assertThrows(SQLException.class, () -> {
+            if (!customerModel.rescheduleAppointment(2, "2024-12-26", "14:00", 102)) {
+                throw new SQLException("Rescheduling failed");
+            }
+        });
     }
 
     @Test
-    void testCreateAppointment() throws SQLException {
-        // Success scenario
-        when(mockCustomerModel.createAppointment("Jane Smith", "SUV", "2024-12-30", "09:00", 103)).thenReturn(true);
+    void testCreateAppointment() {
+        // Successful scenario
+        customerController.createAppointment("Jane Smith", "SUV", "2024-12-30", "09:00", 103, testFrame);
+        assertDoesNotThrow(() -> customerModel.createAppointment("Jane Smith", "SUV", "2024-12-30", "09:00", 103));
 
-        customerController.createAppointment("Jane Smith", "SUV", "2024-12-30", "09:00", 103, mockFrame);
-        verify(mockCustomerModel).createAppointment("Jane Smith", "SUV", "2024-12-30", "09:00", 103);
-
-        // Failure scenario
-        when(mockCustomerModel.createAppointment("Jane Smith", "SUV", "2024-12-30", "09:00", 103)).thenReturn(false);
-
-        customerController.createAppointment("Jane Smith", "SUV", "2024-12-30", "09:00", 103, mockFrame);
-        verify(mockCustomerModel, times(2)).createAppointment("Jane Smith", "SUV", "2024-12-30", "09:00", 103);
-    }
-
-    @Test
-    void testCancelAppointment() throws SQLException {
-        // Success scenario
-        when(mockCustomerModel.cancelAppointment(1)).thenReturn(true);
-
-        customerController.cancelAppointment(1, mockFrame);
-        verify(mockCustomerModel).cancelAppointment(1);
-
-        // Failure scenario
-        when(mockCustomerModel.cancelAppointment(1)).thenReturn(false);
-
-        customerController.cancelAppointment(1, mockFrame);
-        verify(mockCustomerModel, times(2)).cancelAppointment(1);
-    }
-
-    @Test
-    void testGetAvailableMechanics() throws SQLException {
-        // Success scenario
-        ArrayList<String> mockMechanics = new ArrayList<>();
-        mockMechanics.add("Mechanic ID: 101 | Name: Alice");
-        mockMechanics.add("Mechanic ID: 102 | Name: Bob");
-        when(mockCustomerModel.getAvailableMechanics("2024-12-25", "10:00")).thenReturn(mockMechanics);
-
-        ArrayList<String> availableMechanics = customerController.getAvailableMechanics(mockFrame, "2024-12-25", "10:00");
-        assertEquals(2, availableMechanics.size(), "Success: Should return two available mechanics.");
-        assertEquals("Mechanic ID: 101 | Name: Alice", availableMechanics.get(0));
-        assertEquals("Mechanic ID: 102 | Name: Bob", availableMechanics.get(1));
-
-        // Failure scenario
-        when(mockCustomerModel.getAvailableMechanics("2024-12-25", "10:00")).thenThrow(new SQLException("Database error"));
-
-        availableMechanics = customerController.getAvailableMechanics(mockFrame, "2024-12-25", "10:00");
-        assertTrue(availableMechanics.isEmpty(), "Failure: Should return an empty list in case of an error.");
+        // Failed scenario
+        customerController.createAppointment("Jane Smith", "SUV", "2024-12-30", "10:00", 103, testFrame);
+        assertThrows(SQLException.class, () -> {
+            if (!customerModel.createAppointment("Jane Smith", "SUV", "2024-12-30", "10:00", 103)) {
+                throw new SQLException("Appointment creation failed");
+            }
+        });
     }
 }

@@ -2,76 +2,105 @@ package test.java.controller;
 
 import main.java.controller.LoginController;
 import main.java.model.AuthenticationModel;
-import main.java.model.DatabaseConnection;
 import main.java.utils.AuthResult;
 import main.java.users.User;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import javax.swing.*;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 public class LoginControllerTest {
 
     private LoginController loginController;
-    private AuthenticationModel mockAuthModel;
-    private JFrame mockLoginFrame;
+    private AuthenticationModel authModel;
+    private JFrame loginFrame;
 
     @Before
     public void setUp() {
-        mockAuthModel = mock(AuthenticationModel.class);
-        loginController = new LoginController(mockAuthModel);
-        mockLoginFrame = mock(JFrame.class);
+        // Using real AuthenticationModel and JFrame objects.
+        authModel = new AuthenticationModel(null); // We are not testing the database connection here.
+        loginController = new LoginController(authModel);
+        loginFrame = new JFrame();
     }
 
     @Test
-    public void testHandleLogin() {
-        // Test 1: Empty username or password
-        loginController.handleLogin("", "password", mockLoginFrame);
-        verify(mockLoginFrame, times(1)).dispose();
+    public void testHandleLogin_emptyFields() {
+        // Test 1: When the username or password is empty
+        loginController.handleLogin("", "password", loginFrame);
+        assertTrue(loginFrame.isDisplayable());
 
-        loginController.handleLogin("username", "", mockLoginFrame);
-        verify(mockLoginFrame, times(2)).dispose();
+        loginController.handleLogin("username", "", loginFrame);
+        assertTrue(loginFrame.isDisplayable());
+    }
 
-        // Test 2: Invalid credentials
-        when(mockAuthModel.authenticateUser("invalidUser", "invalidPass"))
-                .thenReturn(null);
+    @Test
+    public void testHandleLogin_invalidCredentials() {
+        // Test 2: Login with invalid credentials
+        authModel = new AuthenticationModel(null) {
+            @Override
+            public AuthResult authenticateUser(String username, String password) {
+                return null; // Simulating an invalid user.
+            }
+        };
+        loginController = new LoginController(authModel);
 
-        loginController.handleLogin("invalidUser", "invalidPass", mockLoginFrame);
-        verify(mockLoginFrame, times(3)).dispose();
+        loginController.handleLogin("invalidUser", "invalidPass", loginFrame);
+        assertTrue(loginFrame.isDisplayable());
+    }
 
+    @Test
+    public void testHandleLogin_validCustomerLogin() {
         // Test 3: Valid customer login
-        User mockCustomer = mock(User.class);
-        AuthResult mockCustomerResult = new AuthResult("customer", mockCustomer);
+        authModel = new AuthenticationModel(null) {
+            @Override
+            public AuthResult authenticateUser(String username, String password) {
+                if (username.equals("customerUser") && password.equals("customerPass")) {
+                    return new AuthResult("customer", new User(1, "customerUser"));
+                }
+                return null;
+            }
+        };
+        loginController = new LoginController(authModel);
 
-        when(mockAuthModel.authenticateUser("customerUser", "customerPass"))
-                .thenReturn(mockCustomerResult);
+        loginController.handleLogin("customerUser", "customerPass", loginFrame);
+        assertFalse(loginFrame.isDisplayable());
+    }
 
-        loginController.handleLogin("customerUser", "customerPass", mockLoginFrame);
-        verify(mockLoginFrame, times(4)).dispose();
-
+    @Test
+    public void testHandleLogin_validMechanicLogin() {
         // Test 4: Valid mechanic login
-        User mockMechanic = mock(User.class);
-        AuthResult mockMechanicResult = new AuthResult("mechanic", mockMechanic);
+        authModel = new AuthenticationModel(null) {
+            @Override
+            public AuthResult authenticateUser(String username, String password) {
+                if (username.equals("mechanicUser") && password.equals("mechanicPass")) {
+                    return new AuthResult("mechanic", new User(2, "mechanicUser"));
+                }
+                return null;
+            }
+        };
+        loginController = new LoginController(authModel);
 
-        when(mockAuthModel.authenticateUser("mechanicUser", "mechanicPass"))
-                .thenReturn(mockMechanicResult);
+        loginController.handleLogin("mechanicUser", "mechanicPass", loginFrame);
+        assertFalse(loginFrame.isDisplayable());
+    }
 
-        loginController.handleLogin("mechanicUser", "mechanicPass", mockLoginFrame);
-        verify(mockLoginFrame, times(5)).dispose();
-
+    @Test
+    public void testHandleLogin_validManagerLogin() {
         // Test 5: Valid manager login
-        User mockManager = mock(User.class);
-        AuthResult mockManagerResult = new AuthResult("manager", mockManager);
+        authModel = new AuthenticationModel(null) {
+            @Override
+            public AuthResult authenticateUser(String username, String password) {
+                if (username.equals("managerUser") && password.equals("managerPass")) {
+                    return new AuthResult("manager", new User(3, "managerUser"));
+                }
+                return null;
+            }
+        };
+        loginController = new LoginController(authModel);
 
-        when(mockAuthModel.authenticateUser("managerUser", "managerPass"))
-                .thenReturn(mockManagerResult);
-
-        loginController.handleLogin("managerUser", "managerPass", mockLoginFrame);
-        verify(mockLoginFrame, times(6)).dispose();
+        loginController.handleLogin("managerUser", "managerPass", loginFrame);
+        assertFalse(loginFrame.isDisplayable());
     }
 }
