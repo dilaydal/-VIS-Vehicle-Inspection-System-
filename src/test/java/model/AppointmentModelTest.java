@@ -1,4 +1,4 @@
-package test.java.controller.ModelTest;
+package test.java.model;
 
 public class AppointmentModelTest {
     
