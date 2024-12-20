@@ -32,8 +32,14 @@ public class MechanicFrame extends JFrame {
 
         String[] columnNames = { "AppointmentID", "Customer Name", "Vehicle Type", "Appointment Time",
                 "Inspection Status" };
-        tableModel = new DefaultTableModel(columnNames, 0);
+         tableModel = new DefaultTableModel(columnNames, 0)            {
+ @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         scheduleTable = new JTable(tableModel);
+
         JScrollPane tableScrollPane = new JScrollPane(scheduleTable);
 
         JButton updateStatusButton = new JButton("Update Inspection Status");

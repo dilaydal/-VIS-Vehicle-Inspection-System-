@@ -1,10 +1,7 @@
 package main.java.model;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
 
 public class MechanicModel {
     private Connection connection;
@@ -37,11 +34,18 @@ public class MechanicModel {
     }
 
     public ResultSet getDailyTaskSchedule(int mechanicID) throws SQLException {
-        String query = "SELECT id,customer_name, vehicle_type, appointment_time,inspection_status FROM appointments WHERE mechanicID = ?";
+        String query = "SELECT id, customer_name, vehicle_type, appointment_time, inspection_status " +
+                "FROM appointments WHERE mechanicID = ? AND DATE(appointment_date) = ?";
+
         PreparedStatement statement = connection.prepareStatement(query);
         statement.setInt(1, mechanicID);
+
+        LocalDate currentDate = LocalDate.now();
+        statement.setDate(2, Date.valueOf(currentDate));
+
         return statement.executeQuery();
     }
+
     /*
      * public boolean updateInspectionStatus(int mechanicID, String customerName,
      * String vehicleType,
