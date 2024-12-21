@@ -115,14 +115,14 @@ class ManagerControllerTest {
     @Test
     void testViewAllAppointments() throws SQLException {
         // Test viewing all appointments
-        String expected = "Customer: John Doe, Vehicle: SUV, Date: 2024-12-25, Time: 10:00:00, Mechanic ID: 1\n" +
-                "Customer: Jane Doe, Vehicle: Sedan, Date: 2024-12-26, Time: 14:00:00, Mechanic ID: 2\n";
+        String expected = "Customer: custom1, Vehicle: SUV, Date: 2024-12-25, Time: 10:00:00, Mechanic ID: 1\n" +
+                "Customer: custom2, Vehicle: Sedan, Date: 2024-12-26, Time: 14:00:00, Mechanic ID: 2\n";
 
         // Fetch all appointments
         ResultSet resultSet = appointmentModel.getAllAppointmentsWithJoinCustomers();
         StringBuilder appointments = new StringBuilder();
         while (resultSet.next()) {
-            appointments.append("Customer: ").append(resultSet.getString("fullName"))
+            appointments.append("Customer: ").append(resultSet.getString("customer_name"))
                     .append(", Vehicle: ").append(resultSet.getString("vehicle_type"))
                     .append(", Date: ").append(resultSet.getDate("appointment_date"))
                     .append(", Time: ").append(resultSet.getTime("appointment_time"))
